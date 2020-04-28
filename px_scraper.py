@@ -4,6 +4,12 @@ from urllib.parse import urlparse
 import re
 
 
+def remove_slash(arg):
+    if '\\\\' not in arg:
+        return arg
+    return remove_slash(arg=arg.replace('\\\\', '\\'))
+
+
 def send_request(url):
     result, r_post = '', ''
     s = requests.Session()
@@ -18,10 +24,8 @@ def send_request(url):
             result = r_post
             break
         position_list = [m.start() for m in re.finditer(r'(?=\\)', argument_list[index])]
-        if position_list:
-            __EVENTARGUMENT = argument_list[index][:position_list[0]] + '\\' + argument_list[index][position_list[-1]+1:]
-        else:
-            __EVENTARGUMENT = argument_list[index]
+        __EVENTARGUMENT = remove_slash(argument_list[index])
+        print(argument_list[index])
         print('Folder Index: ', index, ', Total Folders: ', len(argument_list), ', Current Folder: ', __EVENTARGUMENT)
         payload = {'__EVENTTARGET': 'ctl00$ContentPlaceHolderMain$TableOfContent1$TableOfContent1$MenuNavigationTree',
                    '__VIEWSTATE': __VIEWSTATE,
@@ -60,10 +64,10 @@ def main(url):
     for leaf in leaves:
         link = '{}{}'.format(domain, leaf.a['href'][1:])
         print(link)
-        # link_page = requests.get(url=link).text
-        link_page = ''
+        link_page = requests.get(url=link).text
         final_result.append({
-            link: link_page
+            'url': link,
+            'html': link_page
         })
     return final_result
 
@@ -82,9 +86,14 @@ def rotate():
 
 if __name__ == '__main__':
     print('---------------------- Start -----------------------')
-    url = 'http://pxnet2.stat.fi/PXWeb/pxweb/en/StatFin/'
-    object = main(url=url)
-    print(len(object), object)
+    # url = 'http://pxnet2.stat.fi/PXWeb/pxweb/fi/Kuntien_talous_ja_toiminta/' # You can put url you want
+    # object = main(url=url)
+    # print(len(object), object)
+
+    """
+        If you want to rotate all urls from tilastokeskus.fi, call this rotate function
+        """
+    rotate()
     print('---------------------- The End ----------------------')
 
 
