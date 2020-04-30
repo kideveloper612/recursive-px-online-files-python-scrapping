@@ -81,7 +81,10 @@ def rotate():
             url = row.find_all('a')[-1]['href']
             print('Started to work on {}'.format(url))
             object = main(url=url)
-            print(len(object), object)
+            import sys
+            print('Length: ', len(object), ', Size: ', sys.getsizeof(object))
+            for i in object:
+                print(i)
             print('Ended to work on {}'.format(url))
 
 if __name__ == '__main__':
